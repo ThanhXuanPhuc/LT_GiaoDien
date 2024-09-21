@@ -5,6 +5,9 @@
 package demo.gui;
 
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -19,13 +22,17 @@ import javax.swing.plaf.ToolBarUI;
  */
 public class JNotepad extends JFrame {
 
-    private JMenuBar menuBar;
-    private JMenu mFile, mEdit, mFormat, mView, mHelp, mZoom;
-    private JMenuItem itemNev, itemOpen, itemSave, itemSaveAs, itemPageSetup, itemPrint, itemExit, itemFont, itemCopy, itemPaste, itemFind, itemReplace, itemZoomIn, itemZoomOut, itemZoomRestore;
+    private JMenuBar mBar;
+    private JMenu mFile, mEdit, mFomat, mView, mZoom, mHelp;
+    private JMenuItem itemNew, itemOpen, itemSave, itemSaveAs, itemPageSetup, itemPrint, itemExit;
+    private JMenuItem itemUndo, itemCut, itemCopy, itemPast, itemDelete, itemSearch, itemFind, itemFindNext, itemFindPrevious, itemReplace, itemGoTo, itemSelectAll, itemTimeDate;
+    private JMenuItem itemFont, itemZoomIn, itemZoomOut, itemRestore, itemViewHelp, itemSendFeedback, itemaboutNotepad;
     private JCheckBoxMenuItem itemWrap, itemStatusBar;
     private JTextArea txtEditor;
     private JToolBar toolBar;
     private JButton btNew, btOpen, btSave;
+
+    int size = 20;
 
     public JNotepad(String title) {
         super(title);
@@ -48,56 +55,78 @@ public class JNotepad extends JFrame {
     }
 
     private void createMenu() {
-        //tạo đối tượng thanh thực đơn
-        menuBar = new JMenuBar();
-        //tạo các thực đơn và thêm vào thanh thực đơn
-        menuBar.add(mFile = new JMenu("File"));
-        menuBar.add(mEdit = new JMenu("Edit"));
-        menuBar.add(mFormat = new JMenu("Format"));
-        menuBar.add(mView = new JMenu("View"));
-        menuBar.add(mHelp = new JMenu("Help"));
+        mBar = new JMenuBar();
+        mBar.add(mFile = new JMenu("File"));
+        mBar.add(mEdit = new JMenu("Edit"));
+        mBar.add(mFomat = new JMenu("Fomat"));
+        mBar.add(mView = new JMenu("View"));
+        mBar.add(mHelp = new JMenu("Help"));
 
-        //tạo các item cho menu file
-        mFile.add(itemNev = new JMenuItem("New"));
+        mFile.add(itemNew = new JMenuItem("New"));
         mFile.add(itemOpen = new JMenuItem("Open..."));
         mFile.add(itemSave = new JMenuItem("Save"));
-        mFile.add(itemSaveAs = new JMenuItem("Save as..."));
-        mFile.add(new JSeparator());
-        mFile.add(itemPageSetup = new JMenuItem("Page setup..."));
+        mFile.add(itemSaveAs = new JMenuItem("Save As..."));
+        mFile.addSeparator();
+        mFile.add(itemPageSetup = new JMenuItem("Page Setup..."));
         mFile.add(itemPrint = new JMenuItem("Print..."));
         mFile.addSeparator();
         mFile.add(itemExit = new JMenuItem("Exit"));
 
-        //tạo item cho menu warp
-        mFormat.add(itemWrap = new JCheckBoxMenuItem("Word Warp", true));
-        mFormat.add(itemFont = new JMenuItem("Font..."));
+        mEdit.add(itemUndo = new JMenuItem("Undo"));
+        mEdit.addSeparator();
+        mEdit.add(itemCut = new JMenuItem("Cut"));
+        mEdit.add(itemCopy = new JMenuItem("Copy"));
+        mEdit.add(itemPast = new JMenuItem("Paste"));
+        mEdit.add(itemDelete = new JMenuItem("Delete"));
+        mEdit.addSeparator();
+        mEdit.add(itemSearch = new JMenuItem("Search with Bing..."));
+        mEdit.add(itemFind = new JMenuItem("Find"));
+        mEdit.add(itemFindNext = new JMenuItem("Find Text"));
+        mEdit.add(itemFindPrevious = new JMenuItem("Find Previous"));
+        mEdit.add(itemReplace = new JMenuItem("Replace..."));
+        mEdit.add(itemGoTo = new JMenuItem("Go To..."));
+        mEdit.addSeparator();
+        mEdit.add(itemSelectAll = new JMenuItem("Select All"));
+        mEdit.add(itemTimeDate = new JMenuItem("Time/Date"));
 
-        //tạo các item cho menu View
+        mFomat.add(itemWrap = new JCheckBoxMenuItem("Word Wrap", true));
+        mFomat.add(itemFont = new JMenuItem("Font..."));
+
         mView.add(mZoom = new JMenu("Zoom"));
+        mView.add(itemStatusBar = new JCheckBoxMenuItem("Status Bar", true));
         mZoom.add(itemZoomIn = new JMenuItem("Zoom In"));
         mZoom.add(itemZoomOut = new JMenuItem("Zoom Out"));
-        mZoom.add(itemZoomRestore = new JMenuItem("Restore Default Zoom"));
-        mView.add(itemStatusBar = new JCheckBoxMenuItem("Status Bar"));
+        mZoom.add(itemRestore = new JMenuItem("Restore Default Zoom"));
 
-        //tạo item cho edit
-        mEdit.add(itemCopy = new JMenuItem("Copy"));
-        mEdit.add(itemPaste = new JMenuItem("Paste"));
-        mEdit.add(itemFind = new JMenuItem("Find..."));
-        mEdit.add(itemReplace = new JMenuItem("Replace..."));
+        mHelp.add(itemViewHelp = new JMenuItem("View Help"));
+        mHelp.add(itemSendFeedback = new JMenuItem("Send Feedback"));
+        mHelp.add(itemaboutNotepad = new JMenuItem("About Notepad"));
 
-        //tạo phím nóng cho các Item
-        itemNev.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK));
+        itemNew.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK));
         itemOpen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
         itemSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
-        itemSaveAs.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK + KeyEvent.SHIFT_DOWN_MASK));
-        itemPrint.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_DOWN_MASK));
-        itemExit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, KeyEvent.CTRL_DOWN_MASK));
+        itemSaveAs.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK + KeyEvent.SHIFT_DOWN_MASK));
+        itemExit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));
 
-        itemZoomIn.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ADD, KeyEvent.CTRL_DOWN_MASK));
-        itemZoomOut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SUBTRACT, KeyEvent.CTRL_DOWN_MASK));
+        itemUndo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK));
+        itemCut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK));
+        itemCopy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
+        itemPast.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK));
+        itemDelete.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
+        itemSearch.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK));
+        itemFind.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
+        itemFindNext.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0));
+        itemFindPrevious.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F3, KeyEvent.SHIFT_DOWN_MASK));
+        itemReplace.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, KeyEvent.CTRL_DOWN_MASK));
+        itemGoTo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, KeyEvent.CTRL_DOWN_MASK));
+        itemSelectAll.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.CTRL_DOWN_MASK));
+        itemTimeDate.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
 
-        //gắn thanh thực đơn vào cửa sổ
-        setJMenuBar(menuBar);
+        itemZoomIn.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, KeyEvent.CTRL_DOWN_MASK));
+        itemZoomOut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, KeyEvent.CTRL_DOWN_MASK));
+        itemRestore.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_0, KeyEvent.CTRL_DOWN_MASK));
+
+        setJMenuBar(mBar);
 
     }
 
@@ -106,7 +135,7 @@ public class JNotepad extends JFrame {
         JScrollPane scrollPane = new JScrollPane(txtEditor);
         add(scrollPane);
         txtEditor.setLineWrap(true);
-        txtEditor.setFont(new Font("Arial", Font.PLAIN, 20));
+        txtEditor.setFont(new Font("Arial", Font.PLAIN, size));
     }
 
     private void createToolBar() {
@@ -114,12 +143,124 @@ public class JNotepad extends JFrame {
         toolBar.add(btNew = new JButton("New"));
         toolBar.add(btOpen = new JButton("Open"));
         toolBar.add(btSave = new JButton("Save"));
-        
-        
+
+        // Thêm sự kiện cho nút New
+        btNew.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                newFile();  // Gọi phương thức tạo file mới
+            }
+        });
+
+        // Thêm sự kiện cho nút Open
+        btOpen.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                openFile();  // Gọi phương thức mở file
+            }
+        });
+
+        // Thêm sự kiện cho nút Save
+        btSave.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveFile();  // Gọi phương thức lưu file
+            }
+        });
+
         add(toolBar, BorderLayout.NORTH);
     }
 
     private void processEvent() {
+        itemPrint.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    txtEditor.print();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, "Lỗi khi in: " + ex.getMessage());
+                }
+            }
+        });
+        itemPrint.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    txtEditor.print();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, "Lỗi khi in: " + ex.getMessage());
+                }
+            }
+        });
+        itemZoomIn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                size += 4;
+                txtEditor.setFont(new Font("Arial", Font.PLAIN, size));
+            }
+        });
+        itemZoomOut.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                size -= 4;
+                txtEditor.setFont(new Font("Arial", Font.PLAIN, size));
+            }
+        });
+        itemRestore.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                txtEditor.setFont(new Font("Arial", Font.PLAIN, 20));
+            }
+        });
+        itemSaveAs.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveAsFile();
+            }
+
+        });
+        itemExit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Exit();
+            }
+
+        });
+
+        itemFindNext.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                FindNext();
+            }
+        });
+        itemReplace.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                replaceText();
+            }
+        });
+
+        itemCopy.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Copy();
+            }
+
+        });
+        itemFont.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                chooseFont();
+            }
+        });
+        itemPast.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Paste();
+            }
+
+        });
         //Xu ly item Word Wrap
         itemWrap.addActionListener(new ActionListener() {
             @Override
@@ -149,22 +290,120 @@ public class JNotepad extends JFrame {
             }
 
         });
+        itemNew.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                newFile();
+            }
+
+        });
+    }
+
+    private void newFile() {
+        if (JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn tạo file mới?") == JOptionPane.YES_OPTION) {
+            txtEditor.setText("");  // Xóa sạch nội dung trong JTextArea
+        }
+    }
+
+    private void chooseFont() {
+        JDialog fontDialog = new JDialog(this, "Cài đặt phông chữ", true);
+        fontDialog.setLayout(new BorderLayout());
+
+        String[] fontNames = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+        JComboBox<String> fontCombo = new JComboBox<>(fontNames);
+        JSpinner fontSizeSpinner = new JSpinner(new SpinnerNumberModel(20, 8, 72, 1));
+
+        JButton applyButton = new JButton("Áp dụng");
+
+        applyButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String fontName = (String) fontCombo.getSelectedItem();
+                int fontSize = (int) fontSizeSpinner.getValue();
+                txtEditor.setFont(new Font(fontName, Font.PLAIN, fontSize));
+                fontDialog.dispose();
+            }
+        });
+
+        fontDialog.add(fontCombo, BorderLayout.NORTH);
+        fontDialog.add(fontSizeSpinner, BorderLayout.CENTER);
+        fontDialog.add(applyButton, BorderLayout.SOUTH);
+        fontDialog.pack();
+        fontDialog.setVisible(true);
+    }
+
+    private void replaceText() {
+        String find = JOptionPane.showInputDialog(this, "Tìm:");
+        String replace = JOptionPane.showInputDialog(this, "Thay thế bằng:");
+        if (find != null && replace != null && !find.isEmpty()) {
+            txtEditor.setText(txtEditor.getText().replaceAll(find, replace));
+        }
+    }
+
+    private void FindNext() {
+        String find = JOptionPane.showInputDialog(this, "Tìm:");
+        if (find != null && !find.isEmpty()) {
+            String content = txtEditor.getText();
+            int index = content.indexOf(find);
+            if (index != -1) {
+                txtEditor.setCaretPosition(index);
+                txtEditor.select(index, index + find.length());
+            } else {
+                JOptionPane.showMessageDialog(this, "Không tìm thấy văn bản");
+            }
+        }
+    }
+
+    private void Exit() {
+        if (JOptionPane.showConfirmDialog(null, "Bạn chắc chắn muốn thoát chứ?") == JOptionPane.YES_OPTION) {
+            System.exit(0);
+        }
+    }
+
+    private void Copy() {
+        String selectedText = txtEditor.getSelectedText();
+        if (selectedText != null && !selectedText.isEmpty()) {
+            StringSelection stringSelection = new StringSelection(selectedText);
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            clipboard.setContents(stringSelection, null);
+        } else {
+            JOptionPane.showMessageDialog(txtEditor, "Không có nội dung để sao chép!!!");
+        }
+    }
+
+    private void Paste() {
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        try {
+            String pastedText = (String) clipboard.getData(DataFlavor.stringFlavor);
+            txtEditor.insert(pastedText, txtEditor.getCaretPosition());
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(txtEditor, "Lỗi dán nội dung: " + ex.getMessage());
+        }
     }
 
     private void openFile() {
         JFileChooser dlgFile = new JFileChooser();
         if (dlgFile.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
-                //tạo luồng và liên kết với tập tin
                 FileInputStream fis = new FileInputStream(dlgFile.getSelectedFile());
                 byte[] b = new byte[fis.available()];
-                //Đọc nội dung tập tin
                 fis.read(b);
-                //hiển thị vào vùng văn bản
                 txtEditor.setText(new String(b));
-                fis.close();
-            } catch(Exception ex){
-                JOptionPane.showMessageDialog(this, "Lỗi đọc File");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, " Lỗi đọc File");
+            }
+        }
+    }
+
+    private void saveAsFile() {
+        JFileChooser dlgFile = new JFileChooser();
+        if (dlgFile.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            try {
+                FileOutputStream fos = new FileOutputStream(dlgFile.getSelectedFile());
+                fos.write(txtEditor.getText().getBytes());
+                fos.close();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Lỗi ghi file: " + ex.getMessage());
             }
         }
     }
@@ -179,7 +418,7 @@ public class JNotepad extends JFrame {
                 fos.write(txtEditor.getText().getBytes());
                 //Đóng luồng
                 fos.close();
-            } catch(Exception ex){
+            } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Lỗi đọc File");
             }
         }
