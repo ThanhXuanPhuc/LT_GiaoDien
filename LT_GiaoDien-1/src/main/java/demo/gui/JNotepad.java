@@ -251,7 +251,8 @@ public class JNotepad extends JFrame {
         itemFont.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                chooseFont();
+                JFontDialog fontDialog = new JFontDialog(JNotepad.this, true);
+                fontDialog.setVisible(true);
             }
         });
         itemPast.addActionListener(new ActionListener() {
@@ -303,33 +304,6 @@ public class JNotepad extends JFrame {
         if (JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn tạo file mới?") == JOptionPane.YES_OPTION) {
             txtEditor.setText("");  // Xóa sạch nội dung trong JTextArea
         }
-    }
-
-    private void chooseFont() {
-        JDialog fontDialog = new JDialog(this, "Cài đặt phông chữ", true);
-        fontDialog.setLayout(new BorderLayout());
-
-        String[] fontNames = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
-        JComboBox<String> fontCombo = new JComboBox<>(fontNames);
-        JSpinner fontSizeSpinner = new JSpinner(new SpinnerNumberModel(20, 8, 72, 1));
-
-        JButton applyButton = new JButton("Áp dụng");
-
-        applyButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String fontName = (String) fontCombo.getSelectedItem();
-                int fontSize = (int) fontSizeSpinner.getValue();
-                txtEditor.setFont(new Font(fontName, Font.PLAIN, fontSize));
-                fontDialog.dispose();
-            }
-        });
-
-        fontDialog.add(fontCombo, BorderLayout.NORTH);
-        fontDialog.add(fontSizeSpinner, BorderLayout.CENTER);
-        fontDialog.add(applyButton, BorderLayout.SOUTH);
-        fontDialog.pack();
-        fontDialog.setVisible(true);
     }
 
     private void replaceText() {
@@ -406,6 +380,10 @@ public class JNotepad extends JFrame {
                 JOptionPane.showMessageDialog(this, "Lỗi ghi file: " + ex.getMessage());
             }
         }
+    }
+
+    public JTextArea getEditor() {
+        return txtEditor;
     }
 
     private void saveFile() {
